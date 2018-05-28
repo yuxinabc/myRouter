@@ -1,6 +1,6 @@
-if (isModule){
+if (isModule) {
     apply plugin: 'com.android.library'
-}else{
+} else {
     apply plugin: 'com.android.application'
 }
 def cfg = rootProject.ext.android
@@ -8,15 +8,19 @@ def appId = rootProject.ext.appId
 android {
     compileSdkVersion cfg.compileSdkVersion
     defaultConfig {
-        if (!isModule){
+        if (!isModule) {
             applicationId appId['module2']
         }
         minSdkVersion cfg.minSdkVersion
-        targetSdkVersion  cfg.targetSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
         versionCode cfg.versionCode
         versionName cfg.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
     }
 
     buildTypes {
@@ -27,11 +31,11 @@ android {
     }
     sourceSets {
         //在组件模式下 使用不同的manifest文件
-        main{
-            if(!isModule){
+        main {
+            if (!isModule) {
                 manifest.srcFile 'src/main/module/AndroidManifest.xml'
-                java.srcDirs 'src/main/module/java','src/main/java'
-            }else{
+                java.srcDirs 'src/main/module/java', 'src/main/java'
+            } else {
                 manifest.srcFile 'src/main/AndroidManifest.xml'
             }
         }
@@ -42,8 +46,11 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    annotationProcessor project(':routerCompiler')
     implementation project(':base')
+
 }

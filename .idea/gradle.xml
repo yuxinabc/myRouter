@@ -12,6 +12,9 @@
             <option value="$PROJECT_DIR$/base" />
             <option value="$PROJECT_DIR$/module1" />
             <option value="$PROJECT_DIR$/module2" />
+            <option value="$PROJECT_DIR$/routerAnnotation" />
+            <option value="$PROJECT_DIR$/routerCompiler" />
+            <option value="$PROJECT_DIR$/routerCore" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

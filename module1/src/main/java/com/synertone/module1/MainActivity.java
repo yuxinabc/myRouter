@@ -1,11 +1,11 @@
-package com.synertone.myrouter;
+package com.synertone.module1;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.synertone.routerannotation.Route;
 
-@Route( path = "/a/b")
+@Route( path = "/b/b")
 public class MainActivity extends AppCompatActivity {
 
     @Override
