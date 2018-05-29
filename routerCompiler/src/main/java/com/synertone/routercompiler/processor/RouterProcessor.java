@@ -1,5 +1,11 @@
 package com.synertone.routercompiler.processor;
 
+/**
+ * @author Lance
+ * @date 2018/2/22
+ */
+
+
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -24,7 +30,6 @@ import java.util.TreeMap;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -40,16 +45,23 @@ import javax.lang.model.util.Types;
 
 import static javax.lang.model.element.Modifier.PUBLIC;
 
+
 @AutoService(Processor.class)
+/**
+ * 处理器接收的参数 替代 {@link AbstractProcessor#getSupportedOptions()} 函数
+ */
 @SupportedOptions(Consts.ARGUMENTS_NAME)
-@SupportedAnnotationTypes("com.synertone.routerannotation.Route")
+/**
+ * 指定使用的Java版本 替代 {@link AbstractProcessor#getSupportedSourceVersion()} 函数
+ */
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
+/**
+ * 注册给哪些注解的  替代 {@link AbstractProcessor#getSupportedAnnotationTypes()} 函数
+ */
+@SupportedAnnotationTypes({Consts.ANN_TYPE_ROUTE})
 public class RouterProcessor extends AbstractProcessor {
-    private String moduleName;
-    private Log log;
-    private Elements elementUtils;
-    private Types typeUtils;
-    private Filer filerUtils;
+
+
     /**
      * key:组名 value:类名
      */
@@ -58,10 +70,35 @@ public class RouterProcessor extends AbstractProcessor {
      * 分组 key:组名 value:对应组的路由信息
      */
     private Map<String, List<RouteMeta>> groupMap = new HashMap<>();
+    /**
+     * 节点工具类 (类、函数、属性都是节点)
+     */
+    private Elements elementUtils;
 
+    /**
+     * type(类信息)工具类
+     */
+    private Types typeUtils;
+    /**
+     * 文件生成器 类/资源
+     */
+    private Filer filerUtils;
+    /**
+     * 参数
+     */
+    private String moduleName;
+
+    private Log log;
+
+    /**
+     * 初始化 从 {@link ProcessingEnvironment} 中获得一系列处理器工具
+     *
+     * @param processingEnvironment
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
+        //获得apt的日志输出
         log = Log.newLog(processingEnvironment.getMessager());
         elementUtils = processingEnvironment.getElementUtils();
         typeUtils = processingEnvironment.getTypeUtils();
@@ -87,11 +124,10 @@ public class RouterProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         if (!Utils.isEmpty(set)) {
-            //被Route标注的节点
+            //被Route注解 注解的节点集合
             Set<? extends Element> routeElements = roundEnvironment.getElementsAnnotatedWith(Route.class);
             if (!Utils.isEmpty(routeElements)) {
                 processRoute(routeElements);
-                return true;
             }
             return true;
         }
@@ -99,26 +135,32 @@ public class RouterProcessor extends AbstractProcessor {
     }
 
     /**
-     * 处理被Route注解的节点
+     * 处理 被注解了的 节点
      *
      * @param routeElements
      */
     private void processRoute(Set<? extends Element> routeElements) {
-        TypeElement activityType = elementUtils.getTypeElement(Consts.ACTIVITY);
+        //获得Activity这个类的 节点信息
+        TypeElement activity = elementUtils.getTypeElement(Consts.ACTIVITY);
+
         //暴露的服务
         TypeElement service = elementUtils.getTypeElement(Consts.ISERVICE);
+
         for (Element element : routeElements) {
+            RouteMeta routeMeta;
+            //类信息
             TypeMirror typeMirror = element.asType();
-            //只处理Acitity的Route注解
-            RouteMeta routeMeta = null;
+            log.i("Route class:" + typeMirror.toString());
             Route route = element.getAnnotation(Route.class);
-            if (typeUtils.isSubtype(typeMirror, activityType.asType())) {
+            //只能在指定的类上面使用
+            if (typeUtils.isSubtype(typeMirror, activity.asType())) {
                 routeMeta = new RouteMeta(RouteMeta.Type.ACTIVITY, route, element);
             } else if(typeUtils.isSubtype(typeMirror, service.asType())){
                 routeMeta = new RouteMeta(RouteMeta.Type.ISERVICE, route, element);
-            }else {
-                new RuntimeException("only support Activity Route" + element);
+            } else {
+                throw new RuntimeException("[Just support] Activity Route：" + element);
             }
+            // 检查是否配置 group 如果没有配置 则从path截取出组名
             categories(routeMeta);
         }
         //groupMap
@@ -127,6 +169,7 @@ public class RouterProcessor extends AbstractProcessor {
 
         //生成 $$Group$$ 记录分组表
         generatedGroup(iRouteGroup);
+
         //生成 $$Root$$  记录路由表
         /**
          * 生成Root类 作用:记录 <分组，对应的Group类>
@@ -241,6 +284,7 @@ public class RouterProcessor extends AbstractProcessor {
 
     }
 
+
     /**
      * 检查是否配置 group 如果没有配置 则从path截取出组名
      *
@@ -264,6 +308,12 @@ public class RouterProcessor extends AbstractProcessor {
 
     }
 
+    /**
+     * 验证地址合法性
+     *
+     * @param routeMeta
+     * @return
+     */
     private boolean routeVerify(RouteMeta routeMeta) {
         String path = routeMeta.getPath();
         String group = routeMeta.getGroup();
@@ -282,4 +332,6 @@ public class RouterProcessor extends AbstractProcessor {
         }
         return true;
     }
+
+
 }

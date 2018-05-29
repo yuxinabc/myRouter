@@ -1,2 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.synertone.module2" />
+    package="com.synertone.module2" >
+    <application>
+        <activity android:name=".MainModule2Activity"/>
+    </application>
+</manifest>

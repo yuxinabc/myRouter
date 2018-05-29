@@ -1,16 +1,16 @@
 package com.synertone.module1;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.synertone.routerannotation.Route;
 
-@Route( path = "/b/b")
-public class MainActivity extends AppCompatActivity {
+@Route(path = "/module1/second")
+public class SecondModule1Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_second_module1);
     }
 }

@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId appId["app"]
         minSdkVersion cfg.minSdkVersion
-        targetSdkVersion  cfg.targetSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
         versionCode cfg.versionCode
         versionName cfg.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

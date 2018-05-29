@@ -1,2 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.synertone.module1" />
+    package="com.synertone.module1">
+
+    <application>
+        <activity android:name=".MainModule1Activity" />
+        <activity android:name=".SecondModule1Activity"></activity>
+    </application>
+
+</manifest>
